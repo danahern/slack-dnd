@@ -39,16 +39,17 @@ function detailedRolls(results) {
 
 function roll( command ) {
     var re = /(\d*)d([+-]?\d+)([+-]\d+)?/;
-    var diceSpecs = re.exec(command) || [];       // parse the request, if it fails return an empty array instead of nil
+
+    var diceSpecs = re.exec(command);
+    // If we don't have a valid roll, default to 1d20
+    if( !diceSpecs ) {
+	command += " (1d20)";
+        diceSpecs = re.exec("1d20");
+    }
 
     var numDice = parseInt(diceSpecs[1]) || 1; // default to 1 for the /roll d20 case
     var diceType = parseInt(diceSpecs[2]);
     var modifier = parseInt(diceSpecs[3]);
-
-    // If there is no correctly specified die roll, default to 1d20
-    if(isNaN(diceType)) {
-        return roll( command + ' (1d20)' );
-    }
 
     var results = rollDice(numDice, diceType);
     var total = results.sum();
