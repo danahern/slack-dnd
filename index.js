@@ -7,11 +7,11 @@ var minimist = require('minimist');
 var argv;
 var port = 3000;
 var host = '127.0.0.1';
-var slackToken;
 var groupRestrict;
 var slackHost;
+var slackHookPath; 
 
-function startRollServer(port, ip, slackToken, slackHost, groupRestrict){
+function startRollServer(port, ip, slackHookPath, slackHost, groupRestrict){
   var server = http.createServer(function(req, res){
     var parsed = url.parse(req.url, true);
     
@@ -37,7 +37,7 @@ function startRollServer(port, ip, slackToken, slackHost, groupRestrict){
       
       var post = https.request({
         host: slackHost,
-        path: '/services/hooks/incoming-webhook?token='+slackToken,
+        path: slackHookPath,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,11 +69,11 @@ if(!module.parent){
   port = argv.port || port;
   groupRestrict = argv.group || groupRestrict;
   slackHost = argv.slack || slackHost;
-  slackToken = argv.token || slackToken;
+  slackHookPath = argv.hookPath || slackHookPath;
 
-  if(typeof slackToken === 'undefined' || typeof slackHost === 'undefined'){
-    console.log('You need a slack token and a slack hostname to continue');
+  if(typeof slackHookPath === 'undefined' || typeof slackHost === 'undefined'){
+    console.log('You need a slack hostname and incoming webhook path to continue');
   }
 
-  startRollServer(port, host, slackToken, slackHost, groupRestrict);
+  startRollServer(port, host, slackHookPath, slackHost, groupRestrict);
 }
