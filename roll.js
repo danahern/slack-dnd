@@ -9,7 +9,7 @@ function denseArray(size) {
 }
 
 function sign(x) {
-  return (x>0) - (x<0);
+    return (x>0) - (x<0);
 }
 
 // return a random integer
@@ -17,7 +17,7 @@ function sign(x) {
 //   if max > 0 pick from range 1..max
 //   if max < 0 pick from range max..-1
 function rollDie(max){
-  return sign(max) * (Math.floor( Math.random() * Math.abs(max) ) + 1);
+    return sign(max) * (Math.floor( Math.random() * Math.abs(max) ) + 1);
 }
 
 function rollDice(count, max) {
@@ -43,7 +43,7 @@ function roll( command ) {
     var diceSpecs = re.exec(command);
     // If we don't have a valid roll, default to 1d20
     if( !diceSpecs ) {
-	command += " (1d20)";
+        command += " (1d20)";
         diceSpecs = re.exec("1d20");
     }
 
