@@ -11,10 +11,6 @@ var slackToken;
 var groupRestrict;
 var slackHost;
 
-function rollDie(max){
-  return Math.floor(Math.random() * (max - 1 + 1)) + 1;
-}
-
 function startRollServer(port, ip, slackToken, slackHost, groupRestrict){
   var server = http.createServer(function(req, res){
     var parsed = url.parse(req.url, true);
@@ -24,29 +20,14 @@ function startRollServer(port, ip, slackToken, slackHost, groupRestrict){
     }
 
     if(parsed.pathname === '/roll'){
-      var diceData = parsed.query.text.split('d');
       var echoChannel = parsed.query.channel_id;
-      var numDice = parseInt(diceData[0] || 1, 10);
-      var diceType = parseInt(diceData[1], 10);
-      var results = [];
-      var roll = 0;
+      var roll = require("./roll");
 
       console.log('request', req.url);
-
-      if(!isNaN(numDice) && !isNaN(diceType)){
-        console.log('valid request, rolling dice');
-        numDice = numDice > 10 ? 10 : numDice;
-        diceType = diceType > 20 ? 20 : diceType;
-        for(var i = 0; i < numDice; i++){
-          roll = rollDie(diceType);
-          results.push(roll);
-        }
-      }
-
-      var total = results.reduce(function(a,r){ return a += r}, 0);
+      var rollResult = roll.roll(parsed.query.text);
 
       var output = JSON.stringify({
-        text: diceData.join('d')+': '+total+'; '+results.join(' '),
+        text: parsed.query.user_name + rollResult,
         username: 'dungeonmaster',
         icon_emoji: ':dm:',
         channel: echoChannel
