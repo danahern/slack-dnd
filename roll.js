@@ -28,14 +28,10 @@ function detailedRolls(results) {
         return ' [' + results.join(", ") + ']';
     }
 
-    if( results.length < 1000 ) {
-        var countedResults = _.countBy( results, _.identity );
-        var englishResults = _.map( countedResults, function( count, roll ) { return inWords(count) + " " + roll + (count==1?"":"s") } );
+    var countedResults = _.countBy( results, _.identity );
+    var englishResults = _.map( countedResults, function( count, roll ) { return inWords(count) + " " + roll + (count==1?"":"s") } );
 
-        return ' ['+arrayToSentence(englishResults)+']';
-    }
-
-    return "";
+    return ' ['+arrayToSentence(englishResults)+']';
 }
 
 function roll( command ) {
@@ -48,11 +44,9 @@ function roll( command ) {
         diceSpecs = re.exec("1d20");
     }
 
-    diceSpecs = _.map(diceSpecs, function(x) {return parseInt(x)});
-
-    var numDice = diceSpecs[1] || 1; // default to 1 for the /roll d20 case
-    var diceType = diceSpecs[2];
-    var modifier = diceSpecs[3];
+    var numDice = parseInt(diceSpecs[1]) || 1; // default to 1 for the /roll d20 case
+    var diceType = parseInt(diceSpecs[2]);
+    var modifier = parseInt(diceSpecs[3]);
 
     var results = rollDice(numDice, diceType);
     var total = math.sum(results);
