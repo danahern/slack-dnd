@@ -1,5 +1,7 @@
 var _ = require('underscore');
 var math = require('mathjs');
+var inWords = require('in-words').en;
+var arrayToSentence = require('array-to-sentence');
 
 // return a random integer
 //   if max = 0 return 0
@@ -21,9 +23,19 @@ function applyModifier(total, modifier) {
 
 function detailedRolls(results) {
     if( results.length < 2 ) { return ""; }
-    if( results.length > 100 ) { return ""; }
 
-    return ' ['+results.sort(function(a,b){return a-b}).join(', ')+']';
+    if( results.length < 10 ) {
+        return ' [' + results.join(", ") + ']';
+    }
+
+    if( results.length < 1000 ) {
+        var countedResults = _.countBy( results, _.identity );
+        var englishResults = _.map( countedResults, function( count, roll ) { return inWords(count) + " " + roll + (count==1?"":"s") } );
+
+        return ' ['+arrayToSentence(englishResults)+']';
+    }
+
+    return "";
 }
 
 function roll( command ) {

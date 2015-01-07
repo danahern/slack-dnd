@@ -41,6 +41,8 @@
     "minimist": "^0.1.0",
     "tap": "^0.4.11",
     "underscore": "^1.7.0",
-    "mathjs": "^1.2.0"
+    "mathjs": "^1.2.0",
+    "in-words": "^0.1.0",
+    "array-to-sentence": "^1.0.1"
   }
 }
