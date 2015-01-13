@@ -21,9 +21,13 @@ function applyModifier(total, modifier) {
     return (modifier<=0?'':'+') + modifier + "=" + (total + modifier);
 }
 
-function detailedRolls(results) {
+function detailedRollsInExcessOfOne(results) {
     if( results.length < 2 ) { return ""; }
 
+    return detailedRolls( results );
+}
+
+function detailedRolls(results) {
     if( results.length < 10 ) {
         return ' [' + results.join(", ") + ']';
     }
@@ -34,8 +38,18 @@ function detailedRolls(results) {
     return ' ['+arrayToSentence(englishResults)+']';
 }
 
+
+function dropped(results, dropCount) {
+    if( dropCount == 0 ) { return ""; }
+    return " (dropped " + detailedRolls( _.first( _.sortBy( results, _.identity ), dropCount ) ) +")";
+} 
+
+function sumWithDrops(results, dropCount) {
+    return math.sum( 0,  _.rest( _.sortBy( results, _.identity ), dropCount ) ) ;
+}
+
 function roll( command ) {
-    var re = /(\d+\*)?(\d*)d([+-]?\d+)([+-]\d+)?/;
+    var re = /(\d+\*)?(\d*)d([+-]?\d+)([+-]\d+)?(?:\/(\d+))?/;
 
     var diceSpecs = re.exec(command);
     // If we don't have a valid roll, default to 1d20
@@ -44,10 +58,13 @@ function roll( command ) {
         diceSpecs = re.exec("1d20");
     }
 
+    console.log(diceSpecs[5]);
+
     var numRolls = parseInt(diceSpecs[1]) || 1;
     var numDice = parseInt(diceSpecs[2]) || 1; // default to 1 for the /roll d20 case
     var diceType = parseInt(diceSpecs[3]);
     var modifier = parseInt(diceSpecs[4]);
+    var dropCount = parseInt(diceSpecs[5]) || 0;
 
     var resultStrings = [];
     if( numRolls > 1 ) {
@@ -55,8 +72,8 @@ function roll( command ) {
     }
     for (i=0; i<numRolls; i++) {
         var results = rollDice(numDice, diceType);
-        var total = math.sum(results);
-        resultStrings.push( "" + total + applyModifier(total, modifier) + detailedRolls(results) );
+        var total = sumWithDrops(results, dropCount);
+        resultStrings.push( "" + total + applyModifier(total, modifier) + detailedRollsInExcessOfOne(results) + dropped(results, dropCount) );
     }
 
     return ' rolled ' + command + ': ' + resultStrings.join('\n     ');
