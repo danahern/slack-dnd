@@ -35,7 +35,7 @@ function detailedRolls(results) {
 }
 
 function roll( command ) {
-    var re = /(\d*)d([+-]?\d+)([+-]\d+)?/;
+    var re = /(\d+\*)?(\d*)d([+-]?\d+)([+-]\d+)?/;
 
     var diceSpecs = re.exec(command);
     // If we don't have a valid roll, default to 1d20
@@ -44,14 +44,22 @@ function roll( command ) {
         diceSpecs = re.exec("1d20");
     }
 
-    var numDice = parseInt(diceSpecs[1]) || 1; // default to 1 for the /roll d20 case
-    var diceType = parseInt(diceSpecs[2]);
-    var modifier = parseInt(diceSpecs[3]);
+    var numRolls = parseInt(diceSpecs[1]) || 1;
+    var numDice = parseInt(diceSpecs[2]) || 1; // default to 1 for the /roll d20 case
+    var diceType = parseInt(diceSpecs[3]);
+    var modifier = parseInt(diceSpecs[4]);
 
-    var results = rollDice(numDice, diceType);
-    var total = math.sum(results);
+    var resultStrings = [];
+    if( numRolls > 1 ) {
+        resultStrings.push("");
+    }
+    for (i=0; i<numRolls; i++) {
+        var results = rollDice(numDice, diceType);
+        var total = math.sum(results);
+        resultStrings.push( "" + total + applyModifier(total, modifier) + detailedRolls(results) );
+    }
 
-    return ' rolled ' + command + ': ' + total + applyModifier(total, modifier) + detailedRolls(results);
+    return ' rolled ' + command + ': ' + resultStrings.join('\n     ');
 }
 
 exports.roll = roll;
