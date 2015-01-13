@@ -28,8 +28,8 @@ function startRollServer(port, ip, slackHookPath, slackHost, groupRestrict){
 
       var output = JSON.stringify({
         text: parsed.query.user_name + rollResult,
-        username: 'dungeonmaster',
-        icon_emoji: ':dm:',
+        username: 'vox aleae',
+        icon_emoji: ':game_die:',
         channel: echoChannel
       });
 
