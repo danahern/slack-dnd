@@ -57,6 +57,11 @@ function startRollServer(port, ip, slackHookPath, slackHost, groupRestrict){
 
         res.end('');
         break;
+      case '/set':
+        
+        postToWebHook(parsed.query.user_name + "hmm", parsed.query.user_id, slackHookPath, slackHost);
+        res.end('Howdy\n');
+        break;
       default:
         res.end('unhandled slack command\n');
         break;
