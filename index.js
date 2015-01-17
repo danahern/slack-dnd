@@ -11,52 +11,55 @@ var groupRestrict;
 var slackHost;
 var slackHookPath; 
 
+function postToWebHook(replyString, echoChannel, slackHookPath, slackHost) {
+  var output = JSON.stringify({
+    text: replyString, 
+      username: 'vox aleae',
+      icon_emoji: ':game_die:',
+      channel: echoChannel
+  });
+
+  console.log('sending to webhook', output);
+
+  var post = https.request({
+    host: slackHost,
+      path: slackHookPath,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      'Content-Length': output.length
+      }
+  }, function(res){
+    res.setEncoding('utf8');
+    res.on('data', function(chunk){
+      console.log('response', chunk);
+    });
+  });
+
+  post.write(output);
+  post.end();
+}
+
 function startRollServer(port, ip, slackHookPath, slackHost, groupRestrict){
   var server = http.createServer(function(req, res){
     var parsed = url.parse(req.url, true);
-    
+
     if(typeof groupRestrict !== 'undefined'  && parsed.query.team_id !== groupRestrict){
       return res.end('');
     }
 
-    if(parsed.pathname === '/roll'){
-      var echoChannel = parsed.query.channel_id;
-      var roll = require("./roll");
+    switch(parsed.pathname) {
+      case '/roll':
+        var roll = require("./roll");
+        var rollResult = roll.roll(parsed.query.text);
 
-      console.log('request', req.url);
-      var rollResult = roll.roll(parsed.query.text);
+        postToWebHook(parsed.query.user_name + rollResult, parsed.query.channel_id, slackHookPath, slackHost);
 
-      var output = JSON.stringify({
-        text: parsed.query.user_name + rollResult,
-        username: 'vox aleae',
-        icon_emoji: ':game_die:',
-        channel: echoChannel
-      });
-
-      console.log('sending to webhook', output);
-      
-      var post = https.request({
-        host: slackHost,
-        path: slackHookPath,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': output.length
-        }
-      }, function(res){
-        res.setEncoding('utf8');
-        res.on('data', function(chunk){
-          console.log('response', chunk);
-        });
-      });
-
-      post.write(output);
-      post.end();
-
-      res.end('');
-
-    } else {
-      res.end('nope');
+        res.end('');
+        break;
+      default:
+        res.end('unhandled slack command\n');
+        break;
     }
   });
   server.listen(port, ip);
