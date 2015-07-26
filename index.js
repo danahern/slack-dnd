@@ -42,7 +42,7 @@ function postToWebHook(replyString, echoChannel, slackHookPath, slackHost) {
 
 function postRandom(string, channel, slackHookPath, slackHost){
   var output = JSON.stringify({
-    text: replyString,
+    text: string,
       username: 'Robot Chris',
       channel: echoChannel
   });
