@@ -9,17 +9,43 @@ var port = 3000;
 var host = '127.0.0.1';
 var groupRestrict;
 var slackHost;
-var slackHookPath; 
+var slackHookPath;
 
 function postToWebHook(replyString, echoChannel, slackHookPath, slackHost) {
   var output = JSON.stringify({
-    text: replyString, 
-      username: 'vox aleae',
+    text: replyString,
+      username: 'Robot Chris',
       icon_emoji: ':game_die:',
       channel: echoChannel
   });
 
   console.log('sending to webhook', output);
+
+  var post = https.request({
+    host: slackHost,
+      path: slackHookPath,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      'Content-Length': output.length
+      }
+  }, function(res){
+    res.setEncoding('utf8');
+    res.on('data', function(chunk){
+      console.log('response', chunk);
+    });
+  });
+
+  post.write(output);
+  post.end();
+}
+
+function postRandom(string, channel, slackHookPath, slackHost){
+  var output = JSON.stringify({
+    text: replyString,
+      username: 'Robot Chris',
+      channel: echoChannel
+  });
 
   var post = https.request({
     host: slackHost,
@@ -58,9 +84,12 @@ function startRollServer(port, ip, slackHookPath, slackHost, groupRestrict){
         res.end('');
         break;
       case '/set':
-        
+
         postToWebHook(parsed.query.user_name + "hmm", parsed.query.user_id, slackHookPath, slackHost);
         res.end('Howdy\n');
+        break;
+      case '/randomize':
+        postRandom(issues[Math.random(issues.length)], parsed.query.channel_id, slackHookPath, slackHost)
         break;
       default:
         res.end('unhandled slack command\n');
